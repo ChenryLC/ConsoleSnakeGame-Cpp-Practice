@@ -1,14 +1,12 @@
 #include "snake.h"
 
-std::pair<std::optional<Position>, std::optional<Position>>//返回｛新头坐标, 新尾坐标｝
- Snake::move(bool isEat, Direction dir){
+std::optional<Position> Snake::moveHead(Direction dir){
     if ((dir == Direction::Up    && current_dir == Direction::Down) ||
     (dir == Direction::Down  && current_dir == Direction::Up) ||
     (dir == Direction::Left  && current_dir == Direction::Right) ||
     (dir == Direction::Right && current_dir == Direction::Left)){//禁止180°调头
-        return {std::nullopt, std::nullopt};
-    }else{
-        std::optional<Position> oldTail= body.back();
+        dir=current_dir;
+    }
         std::optional<Position> newHead;
         switch(dir){
             case Direction::Up:
@@ -24,20 +22,27 @@ std::pair<std::optional<Position>, std::optional<Position>>//返回｛新头坐�
                 newHead={body.front().x+1,body.front().y};
                 break;
             case Direction::Null:
-                return {std::nullopt, std::nullopt};    
+                moved = false;
+                return std::nullopt;
         }
+        moved = true;
         body.push_front(newHead.value());
         current_dir = dir;
-        if(!isEat){
-            body.pop_back();
-        }else{
-            oldTail = std::nullopt;
-        }
-        return {newHead, oldTail};
-    }
+        return newHead;
 }
 
-Snake::Snake(std::deque<Position> body_, int id_, Direction dir_ = Direction::Null):body(body_), id(id_), current_dir(dir_), status(SnakeStatus::Alive){}
+std::optional<Position> Snake::moveTail(bool isEat){
+    if (!moved || isEat){
+        moved=false;
+        return std::nullopt;
+    }
+    moved=false;
+    std::optional<Position> pos = body.back();
+    body.pop_back();
+    return pos;
+}
+
+Snake::Snake(std::deque<Position> body_, int id_, Direction dir_):body(body_), id(id_), current_dir(dir_), status(SnakeStatus::Alive), moved(false){}
 
 const SnakeStatus& Snake::getStatus() const{
     return status;
@@ -54,3 +59,25 @@ const Position& Snake::getTail() const{
 const Position& Snake::getHead() const{
     return body.front();
 }
+
+const std::deque<Position> &Snake::getBody() const{
+    return body;
+}
+
+void Snake::setStatus(SnakeStatus sta){
+    status = sta;
+}
+
+void Snake::swap(Snake &other)noexcept{
+    using std::swap;
+    swap(current_dir, other.current_dir);
+    swap(body, other.body);
+    swap(id, other.id);
+    swap(status, other.status);
+    swap(moved, other.moved);
+}
+
+void swap(Snake &a, Snake &b)noexcept{
+    a.swap(b);
+}
+

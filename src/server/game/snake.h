@@ -3,11 +3,8 @@
 #include <deque>
 #include <optional>
 #include <functional>
+#include "direction.h"
 #include "position.h"
-
-enum class Direction{
-    Null, Up, Left, Right, Down
-};
 
 enum class SnakeStatus{
     Null, Alive, Dead, Win
@@ -19,16 +16,23 @@ class Snake{
         Direction current_dir;
         int id;
         SnakeStatus status;
+        bool moved;
     public:
 
-        Snake(std::deque<Position>, int, Direction);
+        Snake(std::deque<Position>, int, Direction = Direction::Null);
         
-        std::pair<std::optional<Position>, std::optional<Position>> move(bool, Direction);
+        std::optional<Position> moveHead(Direction);
+        std::optional<Position> moveTail(bool);
         const Position& getHead() const;
         const Position& getTail() const;
+        const std::deque<Position> &getBody() const;
         const SnakeStatus& getStatus() const;
+        void setStatus(SnakeStatus);
         const int& getId() const;
+        void swap(Snake&) noexcept;
 };
+
+void swap(Snake &a, Snake &b)noexcept;
 
 namespace std{
     template<>

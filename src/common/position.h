@@ -1,3 +1,4 @@
+#pragma once
 #include <unordered_set>
 
 struct Position{
@@ -12,9 +13,11 @@ namespace std{
     template<>
     struct hash<Position> {
         size_t operator()(const Position& p) const noexcept {
-            //size_t h1 = hash<int>{}(p.x);
-            //size_t h2 = hash<int>{}(p.y);
-            //return h1 ^ (h2 + 0x9e3779b9 + (h1 << 6) + (h1 >> 2));
+            /*
+            size_t h1 = hash<int>{}(p.x);
+            size_t h2 = hash<int>{}(p.y);
+            return h1 ^ (h2 + 0x9e3779b9 + (h1 << 6) + (h1 >> 2));
+            */
             return (hash<int>()(p.x) << 16) ^ hash<int>()(p.y);
         }
     };
