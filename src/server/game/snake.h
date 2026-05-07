@@ -7,7 +7,7 @@
 #include "position.h"
 
 enum class SnakeStatus{
-    Null, Alive, Dead, Win
+    Null, Alive, Dead
 };
 
 class Snake{

@@ -132,8 +132,10 @@ void World::step(){
 
     //碰撞检测
     for(auto &s : snakeList){
-        
-        if(chunkList.at(getChunkPos(s.getHead())).snake.count(toLocalPos(s.getHead()))||
+        if (s.getHead().x<0||s.getHead().y<0||
+            s.getHead().x>=map_size*CHUNK_SIZE||s.getHead().y>=map_size*CHUNK_SIZE){
+            s.setStatus(SnakeStatus::Dead);
+        }else if(chunkList.at(getChunkPos(s.getHead())).snake.count(toLocalPos(s.getHead()))||
             newHeadPos.count(s.getHead())>=2){
             s.setStatus(SnakeStatus::Dead);
         }else{
@@ -175,22 +177,18 @@ void World::step(){
     chunkUpdateList.erase(chunkUniqueBeginPos, chunkUpdateList.end());
     chunkUpdate();
     //蛇死亡逻辑
-    for(size_t i=snakeList.size()-1; i>0; ){
-        --i;
+    std::vector<int> deadId;
+    for(size_t i=0; i!=snakeList.size(); ++i){
         if(snakeList[i].getStatus()==SnakeStatus::Dead){
-            for(auto &p : snakeList[i].getBody()){
-                chunkList[getChunkPos(p)].food.emplace(toLocalPos(p));
-                chunkList[getChunkPos(p)].snake.erase(toLocalPos(p));
-                dirtyChunkList.push_back(getChunkPos(p));
-            }
-            game_event_handler->playerDied(snakeList[i].getId());
-            snakeList[i].swap(snakeList.back());
-            snakeList.pop_back();
+            deadId.push_back(snakeList[i].getId());
         }
     }
+    for(int i : deadId){
+        game_event_handler->playerDied(i);
+        playerLeave(i);
+    }
     std::sort(dirtyChunkList.begin(), dirtyChunkList.end());
-    auto dirtyChunkListEraseIndex = std::unique(dirtyChunkList.begin(), dirtyChunkList.end());
-    dirtyChunkList.erase(dirtyChunkListEraseIndex, dirtyChunkList.end());
+    dirtyChunkList.erase(std::unique(dirtyChunkList.begin(), dirtyChunkList.end()), dirtyChunkList.end());
     ++step_count;
 }
 
@@ -202,8 +200,16 @@ bool World::playerLeave(int id){
         chunkList[getChunkPos(p)].snake.erase(toLocalPos(p));
         leaveChunk.push_back(getChunkPos(p));
     }
+    for(int i=getChunkPos((*snake).getHead()).x-CHUNK_LOAD_RADIUS; i!=getChunkPos((*snake).getHead()).x+CHUNK_LOAD_RADIUS; ++i){
+        for(int j=getChunkPos((*snake).getHead()).y-CHUNK_LOAD_RADIUS; j!=getChunkPos((*snake).getHead()).y+CHUNK_LOAD_RADIUS; ++j){
+            leaveChunk.push_back(ChunkPos(i, j));
+        }
+    }
+    std::sort(leaveChunk.begin(), leaveChunk.end());
+    leaveChunk.erase(std::unique(leaveChunk.begin(), leaveChunk.end()), leaveChunk.end());
     for(auto p : leaveChunk){
         chunkUpdateList.push_back(p);
+        dirtyChunkList.push_back(p);
         if(chunkList.at(p).load_level>=2)
         chunkList.at(p).load_level-=2;
     }
@@ -250,7 +256,7 @@ const std::optional<Snake> World::getSnake(int id) const{
 std::vector<int> World::getActivePlayerIdList() const{
     std::vector<int> id_list;
     for(auto s : snakeList){
-        if(s.getStatus()==SnakeStatus::Alive||s.getStatus()==SnakeStatus::Win){
+        if(s.getStatus()==SnakeStatus::Alive){
             id_list.push_back(s.getId());
         }
     }
@@ -261,7 +267,7 @@ bool World::isPlayerAlive(int id) const{
     auto it=std::find_if(snakeList.begin(), snakeList.end(), [id](Snake &s){return s.getId()==id;});
     if(it==snakeList.end()) return false;
     auto s=(*it).getStatus();
-    return (s==SnakeStatus::Alive||s==SnakeStatus::Win);
+    return (s==SnakeStatus::Alive);
 }
 
 std::vector<ChunkPos> World::getLoadedChunkPos() const{
