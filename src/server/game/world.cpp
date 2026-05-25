@@ -75,7 +75,7 @@ int World::playerJoin(int id_){
         body.push_back(Position(spawn_chunk.x*CHUNK_SIZE+spawn_pos_x, spawn_chunk.y*CHUNK_SIZE+spawn_pos_y+i));
         chunkList.at(spawn_chunk).snake.insert(LocalPos(spawn_pos_x, spawn_pos_y+i));
     }
-    snakeList.push_back(Snake(body, id_, Direction::Null));
+    snakeList.push_back(Snake(body, id_, Direction::Up));
     playerDirection.emplace(id_, Direction::Null);
     chunkPosOfPlayer.emplace(id_, spawn_chunk);
 

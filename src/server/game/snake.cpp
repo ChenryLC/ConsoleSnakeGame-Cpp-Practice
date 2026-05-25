@@ -42,7 +42,7 @@ std::optional<Position> Snake::moveTail(bool isEat){
     return pos;
 }
 
-Snake::Snake(std::deque<Position> body_, int id_, Direction dir_):body(body_), id(id_), current_dir(dir_), status(SnakeStatus::Alive), moved(false){}
+Snake::Snake(std::deque<Position> body_, int id_, Direction dir_):body(body_), current_dir(dir_), id(id_), status(SnakeStatus::Alive), moved(false){}
 
 const SnakeStatus& Snake::getStatus() const{
     return status;
