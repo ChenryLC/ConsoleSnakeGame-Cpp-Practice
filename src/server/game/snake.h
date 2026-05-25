@@ -3,8 +3,8 @@
 #include <deque>
 #include <optional>
 #include <functional>
-#include "direction.h"
-#include "position.h"
+#include "../../common/direction.h"
+#include "../../common/position.h"
 
 enum class SnakeStatus{
     Null, Alive, Dead

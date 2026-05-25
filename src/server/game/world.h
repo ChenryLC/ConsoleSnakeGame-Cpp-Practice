@@ -3,9 +3,9 @@
 #include <unordered_set>
 #include <random>
 #include <memory>
-#include "constant.h"
+#include "../../common/constant.h"
 #include "snake.h"
-#include "chunk.h"
+#include "../../common/chunk.h"
 #include "../error/game_error.h"
 #include "../event/game_event.h"
 
