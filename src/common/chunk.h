@@ -21,6 +21,7 @@ struct ChunkPos{
     ChunkPos():x(), y(){}
     bool operator== (const ChunkPos &pos) const {return (pos.x==x&&pos.y==y);}
     bool operator!= (const ChunkPos &pos) const {return (pos.x!=x||pos.y!=y);}
+    bool operator< (const ChunkPos &pos) const {if(x!=pos.x)return x<pos.x; return y<pos.y;}
 };
 
 namespace std{
@@ -38,4 +39,12 @@ inline ChunkPos getChunkPos(const Position &pos){
 
 int getChunkFoodCount(Chunk c){
     return c.food.size();
+}
+
+inline Position toWorldPos(const LocalPos &lpos, const ChunkPos &c){
+    return Position(lpos.x+c.x*CHUNK_SIZE, lpos.y+c.y*CHUNK_SIZE);
+}
+
+inline LocalPos toLocalPos(const Position &wpos){
+    return LocalPos(wpos.x%CHUNK_SIZE, wpos.y%CHUNK_SIZE);
 }
