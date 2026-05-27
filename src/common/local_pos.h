@@ -9,7 +9,7 @@ struct LocalPos{
     LocalPos(int x_,int y_):x(x_), y(y_){}
     LocalPos():x(), y(){}
     bool operator== (const LocalPos &pos) const {return (pos.x==x&&pos.y==y);}
-    bool operator!= (const LocalPos &pos) const {return !(pos.x==pos.y);}
+    bool operator!= (const LocalPos &pos) const {return !(*this==pos);}
 };
 
 namespace std{
