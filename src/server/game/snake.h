@@ -19,6 +19,8 @@ class Snake{
         bool moved;
     public:
 
+        bool operator==(const Snake &s){return id==s.id;}
+
         Snake(std::deque<Position>, int, Direction = Direction::Null);
         
         std::optional<Position> moveHead(Direction);
