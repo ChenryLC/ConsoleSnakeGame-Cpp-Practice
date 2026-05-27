@@ -39,7 +39,7 @@ int World::playerJoin(int id_){
     }
 
     ChunkPos spawn_chunk;
-    bool found_safe_chunk;
+    bool found_safe_chunk=false;
     for (int i=0; i!=MAX_JOIN_SAFE_CHUNK_ATTEMP_TIMES&& !found_safe_chunk; ++i){
         int x = random_engine()%map_size;//以区块计
         int y = random_engine()%map_size;
@@ -151,7 +151,7 @@ void World::step(){
             switch(playerDirection.at(s.getId())){
                 case Direction::Down:
                 for(int i=-CHUNK_LOAD_RADIUS; i!=CHUNK_LOAD_RADIUS+1; ++i){
-                    chunkUpdateList.push_back(ChunkPos(newChunkPos.x-CHUNK_LOAD_RADIUS, newChunkPos.y+i));
+                    chunkUpdateList.push_back(ChunkPos(newChunkPos.x-CHUNK_LOAD_RADIUS, newChunkPos.y-i));
                 }
                 break;
                 case Direction::Up:
@@ -161,7 +161,7 @@ void World::step(){
                 break;
                 case Direction::Right:
                 for(int i=-CHUNK_LOAD_RADIUS; i!=CHUNK_LOAD_RADIUS+1; ++i){
-                    chunkUpdateList.push_back(ChunkPos(newChunkPos.x+i, newChunkPos.y+CHUNK_LOAD_RADIUS));
+                    chunkUpdateList.push_back(ChunkPos(newChunkPos.x-i, newChunkPos.y+CHUNK_LOAD_RADIUS));
                 }
                 break;
                 case Direction::Left:
