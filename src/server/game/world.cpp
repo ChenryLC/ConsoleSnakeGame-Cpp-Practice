@@ -114,7 +114,8 @@ void World::step(){
     std::vector<bool> isEat;
     for(auto &s : snakeList){
         if(chunkList.at(getChunkPos(s.getHead())).food.count(toLocalPos(s.getHead()))){
-                isEat.push_back(true);
+            isEat.push_back(true);
+            chunkList.at(getChunkPos(s.getHead())).food.erase(toLocalPos(s.getHead()));
             addFood(getChunkPos(s.getHead()));
         }else{
             isEat.push_back(false);
