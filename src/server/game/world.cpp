@@ -62,9 +62,8 @@ int World::playerJoin(int id_){
 
     for(int i=-SAFE_CHUNK_RADIUS; i!=SAFE_CHUNK_RADIUS+1; ++i){
         for(int j=-SAFE_CHUNK_RADIUS; j!=SAFE_CHUNK_RADIUS+1; ++j){
-            if(!chunkList.emplace(std::make_pair(ChunkPos(spawn_chunk.x+i, spawn_chunk.y+j), Chunk())).second){
-                chunkList.at(ChunkPos(spawn_chunk.x+i, spawn_chunk.y+j)).load_level+=2;//将第1位的值加一
-            };
+            chunkList.emplace(std::make_pair(ChunkPos(spawn_chunk.x+i, spawn_chunk.y+j), Chunk()));
+            chunkList.at(ChunkPos(spawn_chunk.x+i, spawn_chunk.y+j)).load_level+=2;//将第1位的值加一
             chunkUpdateList.push_back(ChunkPos(spawn_chunk.x+i, spawn_chunk.y+j));
         }
     }
@@ -123,11 +122,16 @@ void World::step(){
     }
 
     //尾移动
+    std::vector<std::optional<Position>> oldTailPos;
     for(int i=0; auto &s : snakeList){
         auto pos = s.moveTail(isEat.at(i));
         if(pos.has_value()){     
+            oldTailPos.push_back(pos);
             chunkList.at(getChunkPos(pos.value())).snake.erase(toLocalPos(pos.value()));
-            dirtyChunkList.push_back(getChunkPos(pos.value()));}
+            dirtyChunkList.push_back(getChunkPos(pos.value()));
+        }else{
+            oldTailPos.push_back(std::nullopt);
+        }
         ++i;
     }
 
@@ -145,29 +149,71 @@ void World::step(){
     }
 
     //区块逻辑
-    for(Snake &s : snakeList){
+    for(int c = 0; Snake &s : snakeList){
         if(getChunkPos(s.getHead())!=chunkPosOfPlayer[s.getId()]){
             ChunkPos newChunkPos=getChunkPos(s.getHead());
             chunkPosOfPlayer.at(s.getId())=newChunkPos;            
             switch(playerDirection.at(s.getId())){
                 case Direction::Down:
                 for(int i=-CHUNK_LOAD_RADIUS; i!=CHUNK_LOAD_RADIUS+1; ++i){
-                    chunkUpdateList.push_back(ChunkPos(newChunkPos.x-CHUNK_LOAD_RADIUS, newChunkPos.y-i));
+                    ChunkPos cpos = ChunkPos(newChunkPos.x+i, newChunkPos.y-CHUNK_LOAD_RADIUS);
+                    chunkUpdateList.push_back(cpos);
+                    chunkList[cpos].load_level+=2;
                 }
                 break;
                 case Direction::Up:
                 for(int i=-CHUNK_LOAD_RADIUS; i!=CHUNK_LOAD_RADIUS+1; ++i){
-                    chunkUpdateList.push_back(ChunkPos(newChunkPos.x+CHUNK_LOAD_RADIUS, newChunkPos.y+i));
+                    ChunkPos cpos = ChunkPos(newChunkPos.x+i, newChunkPos.y+CHUNK_LOAD_RADIUS);
+                    chunkUpdateList.push_back(cpos);
+                    chunkList[cpos].load_level+=2;
                 }
                 break;
                 case Direction::Right:
                 for(int i=-CHUNK_LOAD_RADIUS; i!=CHUNK_LOAD_RADIUS+1; ++i){
-                    chunkUpdateList.push_back(ChunkPos(newChunkPos.x-i, newChunkPos.y+CHUNK_LOAD_RADIUS));
+                    ChunkPos cpos = ChunkPos(newChunkPos.x+CHUNK_LOAD_RADIUS, newChunkPos.y+i);
+                    chunkUpdateList.push_back(cpos);
+                    chunkList[cpos].load_level+=2;
                 }
                 break;
                 case Direction::Left:
                 for(int i=-CHUNK_LOAD_RADIUS; i!=CHUNK_LOAD_RADIUS+1; ++i){
-                    chunkUpdateList.push_back(ChunkPos(newChunkPos.x+i, newChunkPos.y-CHUNK_LOAD_RADIUS));
+                    ChunkPos cpos = ChunkPos(newChunkPos.x-CHUNK_LOAD_RADIUS, newChunkPos.y+i);
+                    chunkUpdateList.push_back(cpos);
+                    chunkList[cpos].load_level+=2;
+                }
+                break;
+            }
+        }
+        
+        if(oldTailPos[c].has_value() && getChunkPos(s.getTail())!=getChunkPos(oldTailPos[c].value())){
+            ChunkPos oldChunkPos = getChunkPos(oldTailPos[c].value());
+            switch(playerDirection.at(s.getId())){
+                case Direction::Down:
+                for(int i=-CHUNK_LOAD_RADIUS; i!=CHUNK_LOAD_RADIUS+1; ++i){
+                    ChunkPos cpos = ChunkPos(oldChunkPos.x+i, oldChunkPos.y+CHUNK_LOAD_RADIUS);
+                    chunkUpdateList.push_back(cpos);
+                    chunkList[cpos].load_level-=2;
+                }
+                break;
+                case Direction::Up:
+                for(int i=-CHUNK_LOAD_RADIUS; i!=CHUNK_LOAD_RADIUS+1; ++i){
+                    ChunkPos cpos = ChunkPos(oldChunkPos.x+i, oldChunkPos.y-CHUNK_LOAD_RADIUS);
+                    chunkUpdateList.push_back(cpos);
+                    chunkList[cpos].load_level-=2;
+                }
+                break;
+                case Direction::Right:
+                for(int i=-CHUNK_LOAD_RADIUS; i!=CHUNK_LOAD_RADIUS+1; ++i){
+                    ChunkPos cpos = ChunkPos(oldChunkPos.x-CHUNK_LOAD_RADIUS, oldChunkPos.y+i);
+                    chunkUpdateList.push_back(cpos);
+                    chunkList[cpos].load_level-=2;
+                }
+                break;
+                case Direction::Left:
+                for(int i=-CHUNK_LOAD_RADIUS; i!=CHUNK_LOAD_RADIUS+1; ++i){
+                    ChunkPos cpos = ChunkPos(oldChunkPos.x+CHUNK_LOAD_RADIUS, oldChunkPos.y+i);
+                    chunkUpdateList.push_back(cpos);
+                    chunkList[cpos].load_level-=2;
                 }
                 break;
             }

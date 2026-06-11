@@ -9,7 +9,7 @@ struct Chunk{
     std::unordered_set<LocalPos> snake;
     std::unordered_set<LocalPos> food;
     unsigned int load_level;
-    Chunk():Chunk(3){}
+    Chunk():Chunk(1){}
     Chunk(int load_level_):load_level(load_level_){}
 };
 
