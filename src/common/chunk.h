@@ -13,8 +13,6 @@ struct Chunk{
     Chunk(int load_level_):load_level(load_level_){}
 };
 
-int getChunkFoodCount(Chunk c);
-
 struct ChunkPos{
     int x, y;
     ChunkPos(int x_,int y_):x(x_), y(y_){}
