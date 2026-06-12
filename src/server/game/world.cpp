@@ -85,15 +85,17 @@ int World::playerJoin(int id_){
 
 void World::addFood(ChunkPos c){
     LocalPos pos;
-    int t = 0 ;
-    bool b;
-    do{
-        pos = {random_engine()%CHUNK_SIZE, random_engine()%CHUNK_SIZE};
-        b =chunkList.at(c).food.emplace(pos).second;
-        ++t;
-        if(t>=MAX_FOOD_ADD_ATTEMP_TIMES)
-            throw error::InGameException("cannot add food: chunk too crowded");
-    }while(!b);
+    int attempt_times=0;
+    bool has_added=false;
+    do {
+        pos=LocalPos(random_engine()%CHUNK_SIZE, random_engine()%CHUNK_SIZE);
+        if(!chunkList[c].food.count(pos) && !chunkList[c].snake.count(pos)){
+            has_added=true;
+        }else ++attempt_times;
+        if(attempt_times>=MAX_FOOD_ADD_ATTEMP_TIMES){
+            throw error::InGameException("cannot add food: chunk too full");
+        }
+    }while(!has_added);
     return;
 }
 
