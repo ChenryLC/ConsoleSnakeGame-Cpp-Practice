@@ -11,13 +11,17 @@ enum class SnakeStatus{
 };
 
 class Snake{
-    private:    
-        std::deque<Position> body;
+    public:   
+        using body_type = std::deque<Position>;
+    private:
+        body_type body;
         Direction current_dir;
         int id;
         SnakeStatus status;
         bool moved;
     public:
+
+
 
         bool operator==(const Snake &s){return id==s.id;}
 
@@ -27,11 +31,12 @@ class Snake{
         std::optional<Position> moveTail(bool);
         const Position& getHead() const;
         const Position& getTail() const;
-        const std::deque<Position> &getBody() const;
+        const body_type &getBody() const;
         const SnakeStatus& getStatus() const;
         void setStatus(SnakeStatus);
         const int& getId() const;
         void swap(Snake&) noexcept;
+        void setBody(body_type& body);
 };
 
 void swap(Snake &a, Snake &b)noexcept;
