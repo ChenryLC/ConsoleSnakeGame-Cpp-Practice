@@ -42,7 +42,6 @@ class ChunkManager{
         std::unordered_map<ChunkPos, std::unordered_set<LocalPos>> snake_chunks;
         std::unordered_map<ChunkPos, std::unordered_set<LocalPos>> food_chunks;
         std::unordered_map<ChunkPos, int> load_level;
-        std::vector<ChunkPos> load_list;
         DelayUnloadList unload_list{128};
 
         void unloadChunks(ChunkPos);
@@ -61,4 +60,5 @@ class ChunkManager{
         bool popSnake(Position);
         bool hasSnake(Position);
         
+        void update();
 };
