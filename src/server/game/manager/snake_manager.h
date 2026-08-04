@@ -22,6 +22,8 @@ class SnakeManager{
         void refreshPosSet();
         int snake_max_length;
     public:
+        SnakeManager(); 
+
         int getSankeCount() const;
         std::vector<int> getAliveIds() const;
         std::vector<int> getAllId() const;

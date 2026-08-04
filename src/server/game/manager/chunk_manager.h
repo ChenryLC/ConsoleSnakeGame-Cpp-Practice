@@ -34,10 +34,10 @@ class ChunkManager{
     private:
         static inline constexpr int chunk_size = 16;
         const int load_radius;
-        const int safe_radius;
         const size_t world_size;
 
-        std::uniform_int_distribution<int>& random_engine;
+        std::mt19937 random_gen;
+        std::uniform_int_distribution<int> random_range;
 
         std::unordered_map<ChunkPos, std::unordered_set<LocalPos>> snake_chunks;
         std::unordered_map<ChunkPos, std::unordered_set<LocalPos>> food_chunks;
@@ -46,7 +46,7 @@ class ChunkManager{
 
         void unloadChunks(ChunkPos);
     public:
-        ChunkManager(int map_size, int load_radius, int spawn_safe_radius, std::uniform_int_distribution<int>& random_engine);
+        ChunkManager(int map_size, int load_radius, std::mt19937& random_gen_);
 
         bool hasChunk(ChunkPos) const;
         bool loadChunk(ChunkPos);//load chunk if possible
@@ -54,11 +54,11 @@ class ChunkManager{
         bool increaseLoadLevel(ChunkPos);//add 1 to load reference count
         bool decreaseLoadLevel(ChunkPos);//minus 1 to load reference count
         bool addFood(ChunkPos);
-        bool hasFood(Position);
+        bool hasFood(Position) const;
         bool popFood(Position);
         bool insertSnake(Position);
         bool popSnake(Position);
-        bool hasSnake(Position);
+        bool hasSnake(Position) const;
         
         void update();
 };
