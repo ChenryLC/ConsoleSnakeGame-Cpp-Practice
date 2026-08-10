@@ -12,29 +12,30 @@
 class ChunkManager{
         class DelayUnloadList{
             private:
-                std::vector<ChunkPos> buffer;
-                std::vector<ChunkPos> unload_list;
-                size_t head_index;
-                size_t tail_index;
-                size_t count;
-                size_t capacity;
+                std::vector<ChunkPos> buffer_{128};
+                std::vector<ChunkPos> unload_list_{64};
+                size_t head_index_ =0;
+                size_t tail_index_ =0;
+                size_t count_ =0;
+                static constexpr size_t capacity_ =128;
 
             public:
-                bool need_unload;
-                DelayUnloadList(size_t buffer_size);
-                void add(const ChunkPos&);
+                bool need_unload = false;
+                DelayUnloadList(/*size_t buffer_size*/)=default;
+                void add(const ChunkPos);
                 void clear(size_t count);
                 void clear();
-                bool hasChunk(ChunkPos);
-                bool empty();
-                size_t size();
-
+                bool empty() const;
+                bool full() const;
+                size_t size() const;
+                size_t capacity() const;
+                std::vector<ChunkPos>& getUnloadList();
         };
 
     private:
         static inline constexpr int chunk_size = 16;
-        const int load_radius;
         const size_t world_size;
+        const size_t world_size_by_chunk;
 
         std::mt19937 random_gen;
         std::uniform_int_distribution<int> random_range;
@@ -42,7 +43,7 @@ class ChunkManager{
         std::unordered_map<ChunkPos, std::unordered_set<LocalPos>> snake_chunks;
         std::unordered_map<ChunkPos, std::unordered_set<LocalPos>> food_chunks;
         std::unordered_map<ChunkPos, int> load_level;
-        DelayUnloadList unload_list{128};
+        DelayUnloadList unload_list /*{static_cast<size_t>(128)}*/;
 
         void unloadChunks(ChunkPos);
     public:
@@ -50,7 +51,6 @@ class ChunkManager{
 
         bool hasChunk(ChunkPos) const;
         bool loadChunk(ChunkPos);//load chunk if possible
-        bool ensureLoadChunk(ChunkPos);//load chunk when it's unloaded
         bool increaseLoadLevel(ChunkPos);//add 1 to load reference count
         bool decreaseLoadLevel(ChunkPos);//minus 1 to load reference count
         bool addFood(ChunkPos);
@@ -60,5 +60,7 @@ class ChunkManager{
         bool popSnake(Position);
         bool hasSnake(Position) const;
         
-        void update();
+        void flushUnload();
+
+        void clear();
 };

@@ -2,7 +2,7 @@
 
 ChunkManager::ChunkManager(int map_size_, int load_radius_,
     std::mt19937& random_gen_)
-        :world_size(map_size_), load_radius(load_radius_),
+        :world_size(map_size_ & ~15),world_size_by_chunk(world_size/16),
          random_gen(random_gen_), random_range(0, 15)
 {}
 
@@ -48,3 +48,110 @@ bool ChunkManager::popSnake(Position p){
     food_chunks.at(getChunkPos(p)).erase(toLocalPos(p));
 }
 
+bool ChunkManager::loadChunk(ChunkPos c){
+    if(c.x>world_size_by_chunk||c.y>world_size_by_chunk) return false;
+    if(load_level.find(c)==load_level.end()) return false;
+    snake_chunks.emplace();
+    food_chunks.emplace();
+    return true;
+}
+
+bool ChunkManager::increaseLoadLevel(ChunkPos c){
+    if(load_level.find(c)==load_level.end()) return false;
+    ++load_level.at(c);
+    return true;
+}
+
+bool ChunkManager::decreaseLoadLevel(ChunkPos c){
+    if(load_level.find(c)==load_level.end()) return false;
+    --load_level.at(c);
+    if(load_level[c]==0) unload_list.add(c);
+    return true;
+}
+
+//ChunkManager::DelayUnloadList::DelayUnloadList(size_t buffer_size)
+//    :capacity_(buffer_size), buffer_(buffer_size), unload_list_(buffer_size) 
+//        , head_index_(0), tail_index_(0), count_(0)
+//        , need_unload(false)
+//{}
+
+void ChunkManager::DelayUnloadList::add(const ChunkPos c){
+    buffer_[tail_index_]=c;
+    tail_index_ = (++tail_index_)%capacity_;
+    ++count_;
+    if(count_!=0 && head_index_==tail_index_){
+        need_unload = true;
+        size_t move_count = capacity_/2;
+        for (size_t i=0; i!=move_count; ++i){
+            unload_list_.push_back(buffer_[(head_index_+i)%capacity_]);
+        }
+        count_ -= move_count;
+        head_index_ = (head_index_+move_count)%capacity_;
+    }
+    if(count_==0){
+        head_index_=0;
+        tail_index_=0;
+    }
+    return;
+}
+
+void ChunkManager::DelayUnloadList::clear(){
+    unload_list_.clear();
+    need_unload=false;
+    head_index_=0;
+    tail_index_=0;
+    count_=0;
+    return;
+}
+
+void ChunkManager::DelayUnloadList::clear(size_t count){
+    if(count>=count_){
+        clear();
+        return;
+    }
+    head_index_=(head_index_+count)%capacity_;
+    count_ -= count;
+    return;
+}
+
+bool ChunkManager::DelayUnloadList::empty() const{
+    if(count_==0)return true;
+    return false;
+}
+
+bool ChunkManager::DelayUnloadList::full() const{
+    if(count_==capacity_)return true;
+    return false;
+}
+
+size_t ChunkManager::DelayUnloadList::size() const{
+    return count_;
+}
+
+size_t ChunkManager::DelayUnloadList::capacity() const{
+    return capacity_;
+}
+
+std::vector<ChunkPos>& ChunkManager::DelayUnloadList::getUnloadList(){
+    return unload_list_;
+}
+
+void ChunkManager::flushUnload(){
+    auto& list = unload_list.getUnloadList();
+    for(int i=list.size()-1; !list.empty()&&i!=10; --i){
+        if(load_level[list[i]]){
+            snake_chunks.erase(list[i]);
+            food_chunks.erase(list[i]);
+            load_level.erase(list[i]);
+            list.pop_back();
+        }
+    }
+    return;
+}
+
+void ChunkManager::clear(){
+    snake_chunks.clear();
+    food_chunks.clear();
+    load_level.clear();
+    unload_list.clear();
+}
