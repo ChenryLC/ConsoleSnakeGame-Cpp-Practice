@@ -138,14 +138,27 @@ std::vector<ChunkPos>& ChunkManager::DelayUnloadList::getUnloadList(){
 
 void ChunkManager::flushUnload(){
     auto& list = unload_list.getUnloadList();
-    for(int i=list.size()-1; !list.empty()&&i!=10; --i){
-        if(load_level[list[i]]){
+    if(!unload_list.need_unload)return;
+    int i = 0;
+    int removed_count;
+    while(i!=list.size()&&removed_count!=10){
+        const ChunkPos& pos = list[i];
+        auto it = load_level.find(pos);
+        if(it==load_level.end()||it->second<=0){
             snake_chunks.erase(list[i]);
             food_chunks.erase(list[i]);
             load_level.erase(list[i]);
+            list[i]=list.back();
             list.pop_back();
+            ++removed_count;
+        }else{
+            ++i;
         }
     }
+    if(list.empty()){
+        unload_list.need_unload=false;
+    }
+    
     return;
 }
 
