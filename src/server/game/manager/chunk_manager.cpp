@@ -39,19 +39,19 @@ bool ChunkManager::popFood(Position p){
 bool ChunkManager::insertSnake(Position p){
     if (!hasChunk(getChunkPos(p))) return false;
     return
-    snake_chunks.at(getChunkPos(p)).emplace(p).second;
+    snake_chunks.at(getChunkPos(p)).emplace(toLocalPos(p)).second;
 }
 
 bool ChunkManager::popSnake(Position p){
     if (!hasChunk(getChunkPos(p))) return false;
     return
-    food_chunks.at(getChunkPos(p)).erase(toLocalPos(p));
+    snake_chunks.at(getChunkPos(p)).erase(toLocalPos(p));
 }
 
 bool ChunkManager::loadChunk(ChunkPos c){
     if(c.x>world_size_by_chunk||c.y>world_size_by_chunk) return false;
-    if(load_level.find(c)==load_level.end()) return false;
-    snake_chunks.emplace();
+    if(load_level.find(c)!=load_level.end()) return false;
+    snake_chunks.emplace();//add empty chunkta
     food_chunks.emplace();
     return true;
 }
@@ -76,10 +76,7 @@ bool ChunkManager::decreaseLoadLevel(ChunkPos c){
 //{}
 
 void ChunkManager::DelayUnloadList::add(const ChunkPos c){
-    buffer_[tail_index_]=c;
-    tail_index_ = (++tail_index_)%capacity_;
-    ++count_;
-    if(count_!=0 && head_index_==tail_index_){
+    if(count_==capacity_){
         need_unload = true;
         size_t move_count = capacity_/2;
         for (size_t i=0; i!=move_count; ++i){
@@ -92,6 +89,9 @@ void ChunkManager::DelayUnloadList::add(const ChunkPos c){
         head_index_=0;
         tail_index_=0;
     }
+    buffer_[tail_index_]=c;
+    tail_index_ = (++tail_index_)%capacity_;
+    ++count_;
     return;
 }
 
@@ -140,7 +140,7 @@ void ChunkManager::flushUnload(){
     auto& list = unload_list.getUnloadList();
     if(!unload_list.need_unload)return;
     int i = 0;
-    int removed_count;
+    int removed_count=0;
     while(i!=list.size()&&removed_count!=10){
         const ChunkPos& pos = list[i];
         auto it = load_level.find(pos);
