@@ -45,8 +45,11 @@ class ChunkManager{
         std::unordered_map<ChunkPos, int> load_level;
         DelayUnloadList unload_list /*{static_cast<size_t>(128)}*/;
 
-        void unloadChunks(ChunkPos);
-    public:
+        std::vector<Position> pos_to_air;
+        std::vector<Position> pos_to_snake;
+        std::vector<Position> pos_to_food;
+    
+        public:
         ChunkManager(int map_size, int load_radius, std::mt19937& random_gen_);
 
         bool hasChunk(ChunkPos) const;
@@ -59,8 +62,13 @@ class ChunkManager{
         bool insertSnake(Position);
         bool popSnake(Position);
         bool hasSnake(Position) const;
-        
+        auto getPosToAir() const;
+        auto getPosToSnake() const;
+        auto getPosToFood() const;
+
         void flushUnload();
+        void clearChangeRecord();
 
         void clear();
+
 };

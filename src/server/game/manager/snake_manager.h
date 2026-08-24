@@ -1,5 +1,6 @@
 #pragma once
-#include <../snake.h>
+#include "../snake.h"
+#include "../../error/game_error.h"
 #include <vector>
 #include <unordered_map>
 #include <unordered_set>
@@ -16,13 +17,14 @@ class SnakeManager{
         std::unordered_multiset<Position> head_pos_set;
         std::unordered_multiset<Position> tail_pos_set;
         std::unordered_map<int, Direction> dirs;
-        std::unordered_map<Position, int> head_pos_to_id;
+        std::unordered_map<Position, int> head_to_id;
+        std::unordered_map<Position, int> pos_to_id;
 
         size_t getIndex(int id) const;
         void refreshPosSet();
-        int snake_max_length;
+        size_t snake_max_length;
     public:
-        SnakeManager(); 
+        SnakeManager(std::vector<int> id_list, std::vector<Snake> snake_list, size_t max_length); 
 
         int getSankeCount() const;
         std::vector<int> getAliveIds() const;
@@ -54,4 +56,6 @@ class SnakeManager{
         bool isAlive(int id) const;
 
         bool hasId(int id) const;
+
+        std::optional<int> getIdByPos(Position) const;
 };

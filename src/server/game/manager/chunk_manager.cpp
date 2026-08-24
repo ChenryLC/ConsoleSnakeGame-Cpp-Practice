@@ -24,26 +24,30 @@ bool ChunkManager::hasSnake(Position p) const{
 
 bool ChunkManager::addFood(ChunkPos p){
     if (!hasChunk(p)) return false;
+    LocalPos pos{random_range(random_gen), random_range(random_gen)};
+    pos_to_food.push_back(toWorldPos(pos, p));
     return
-    food_chunks.at(p).
-        emplace(random_range(random_gen), random_range(random_gen))
+    food_chunks.at(p).insert(pos)
             .second;
 }
 
 bool ChunkManager::popFood(Position p){
     if (!hasChunk(getChunkPos(p))) return false;
+    pos_to_air.push_back(p);
     return
     food_chunks.at(getChunkPos(p)).erase(toLocalPos(p))/* ==1 */; 
 }
 
 bool ChunkManager::insertSnake(Position p){
     if (!hasChunk(getChunkPos(p))) return false;
+    pos_to_snake.push_back(p);
     return
     snake_chunks.at(getChunkPos(p)).emplace(toLocalPos(p)).second;
 }
 
 bool ChunkManager::popSnake(Position p){
     if (!hasChunk(getChunkPos(p))) return false;
+    pos_to_air.push_back(p);
     return
     snake_chunks.at(getChunkPos(p)).erase(toLocalPos(p));
 }
@@ -51,8 +55,9 @@ bool ChunkManager::popSnake(Position p){
 bool ChunkManager::loadChunk(ChunkPos c){
     if(c.x>world_size_by_chunk||c.y>world_size_by_chunk) return false;
     if(load_level.find(c)!=load_level.end()) return false;
-    snake_chunks.emplace();//add empty chunkta
-    food_chunks.emplace();
+    snake_chunks.emplace(c, std::unordered_set<LocalPos>());//add empty chunkta
+    food_chunks.emplace(c, std::unordered_set<LocalPos>());
+    load_level.emplace(c, 0);
     return true;
 }
 
@@ -167,4 +172,22 @@ void ChunkManager::clear(){
     food_chunks.clear();
     load_level.clear();
     unload_list.clear();
+}
+
+auto ChunkManager::getPosToAir() const{
+    return pos_to_air;
+}
+
+auto ChunkManager::getPosToFood() const{
+    return pos_to_food;
+}
+
+auto ChunkManager::getPosToSnake() const{
+    return pos_to_snake;
+}
+
+void ChunkManager::clearChangeRecord(){
+    pos_to_air.clear();
+    pos_to_food.clear();
+    pos_to_snake.clear();
 }
