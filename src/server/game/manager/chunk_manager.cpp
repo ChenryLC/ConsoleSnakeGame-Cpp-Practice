@@ -1,4 +1,7 @@
 #include "chunk_manager.h"
+#include "../../../common/chunk.h"
+#include "../../../common/local_pos.h"
+#include "../../../common/position.h"
 
 ChunkManager::ChunkManager(int map_size_, int load_radius_,
     std::mt19937& random_gen_)

@@ -2,9 +2,9 @@
 #include <stdexcept>
 
 namespace error{
-class PlayerJoinException : public std::runtime_error{
+class InitializationException : public std::runtime_error{
     public:
-        explicit PlayerJoinException(const std::string& msg) : std::runtime_error(msg) {}
+        explicit InitializationException(const std::string& msg) : std::runtime_error(msg) {}
 };
 
 class InGameException : public std::runtime_error{

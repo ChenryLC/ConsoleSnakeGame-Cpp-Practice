@@ -1,4 +1,5 @@
 #include "snake_manager.h"
+#include "../../error/game_error.h"
 
 size_t SnakeManager::getIndex(int id) const{
     return index.at(id);

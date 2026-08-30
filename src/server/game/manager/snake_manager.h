@@ -1,6 +1,5 @@
 #pragma once
 #include "../snake.h"
-#include "../../error/game_error.h"
 #include <vector>
 #include <unordered_map>
 #include <unordered_set>
@@ -8,6 +7,7 @@
 #include <stdexcept>
 #include <optional>
 #include <functional>
+
 
 class SnakeManager{
     private:

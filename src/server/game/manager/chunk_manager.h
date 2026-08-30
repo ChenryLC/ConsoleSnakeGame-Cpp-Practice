@@ -1,14 +1,13 @@
 #include "../../../common/chunk.h"
-#include "../../../common/constant.h"
-#include "../../../common/local_pos.h"
-#include "../../../common/position.h"
-#include "../../error/game_error.h"
 #include <unordered_map>
 #include <vector>
 #include <optional>
 #include <functional>
 #include <random>
 
+struct ChunkPos;
+struct Position;
+struct LocalPos;
 class ChunkManager{
         class DelayUnloadList{
             private:
