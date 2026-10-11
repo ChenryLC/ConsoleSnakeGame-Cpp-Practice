@@ -98,7 +98,7 @@ void ChunkManager::DelayUnloadList::add(const ChunkPos c){
         tail_index_=0;
     }
     buffer_[tail_index_]=c;
-    tail_index_ = (++tail_index_)%capacity_;
+    tail_index_ = (tail_index_ + 1)%capacity_;//原写法 (++tail_index_)%capacity_ 同表达式自增+读取，是 UB
     ++count_;
     return;
 }
@@ -194,3 +194,20 @@ void ChunkManager::clearChangeRecord(){
     pos_to_food.clear();
     pos_to_snake.clear();
 }
+
+size_t ChunkManager::getMapSize() const{
+    return world_size;
+}
+
+std::optional<std::reference_wrapper<const std::unordered_set<LocalPos>>> 
+    ChunkManager::getSnakeChunk(ChunkPos c) const{
+        if(snake_chunks.find(c)==snake_chunks.end()) return std::nullopt;
+        return std::optional(std::cref(snake_chunks.at(c)));
+}
+
+std::optional<std::reference_wrapper<const std::unordered_set<LocalPos>>> 
+    ChunkManager::getFoodChunk(ChunkPos c) const{
+        if(food_chunks.find(c)==food_chunks.end()) return std::nullopt;
+        return std::optional(std::cref(food_chunks.at(c)));
+}
+

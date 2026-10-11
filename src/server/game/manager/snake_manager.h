@@ -26,7 +26,7 @@ class SnakeManager{
     public:
         SnakeManager(std::vector<int> id_list, std::vector<Snake> snake_list, size_t max_length); 
 
-        int getSankeCount() const;
+        int getSnakeCount() const;
         std::vector<int> getAliveIds() const;
         std::vector<int> getAllId() const;
 

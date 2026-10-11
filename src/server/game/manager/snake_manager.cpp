@@ -20,7 +20,7 @@ std::optional<Position> SnakeManager::getTail(int id) const{
     return snakes[getIndex(id)].getTail();
 }
 
-int SnakeManager::getSankeCount() const{
+int SnakeManager::getSnakeCount() const{
     return snakes.size();
 }
 
@@ -81,8 +81,9 @@ bool SnakeManager::setDirection(int id, Direction dir){
     if (it == index.end()){
         return false;
     }
-    auto i = (*it).second;
-    dirs[i] = dir;
+    //dirs 的 key 统一是 player id（见 getDirection / moveHeads / removeSnake），
+    //这里原先用了 it->second（vector 下标），会导致 dirs.at(id) 抛 out_of_range
+    dirs[id] = dir;
     return true;
 }
 

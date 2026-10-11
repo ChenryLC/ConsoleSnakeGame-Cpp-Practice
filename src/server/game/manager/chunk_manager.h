@@ -65,6 +65,11 @@ class ChunkManager{
         auto getPosToSnake() const;
         auto getPosToFood() const;
 
+        std::optional<std::reference_wrapper<const std::unordered_set<LocalPos>>> getSnakeChunk(ChunkPos) const;
+        std::optional<std::reference_wrapper<const std::unordered_set<LocalPos>>> getFoodChunk(ChunkPos) const;
+
+        size_t getMapSize() const;
+
         void flushUnload();
         void clearChangeRecord();
 
