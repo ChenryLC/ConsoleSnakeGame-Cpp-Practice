@@ -1,0 +1,52 @@
+@startuml class-diagram
+
+class Snakes{
+    -body : vector
+    -id_list : vector
+    -id_index_map : map
+    +moveHead()
+    +moveTail()
+}
+
+class SnakeManager{
+    -snakes : Snakes
+    +moveHead() : void
+    +moveTail() : void
+    +getHead() : Position
+    +getTail() : Position
+}
+
+class ChunkManager{
+    -food_chunks : std::unordered_map<ChunkPos, std::unordered_set<LocalPos> >
+    -snake_chunks : std::unordered_map<ChunkPos, std::unordered_set<LocalPos> >
+    +hasFood()
+    +hasSnake()
+    +summonFood()
+    +insertSnake()
+    +isEmpty()
+    +popFood()
+    +popSnake()
+    +increaseReferenceCount() : bool
+    +decreaseReferenceCount() : bool
+    +isValid()
+    +LoadChunk()
+}
+
+class GameControl{
+    -snake_manager
+    -chunk_manager
+    +move()
+}
+
+class World{
+    -step_count : int
+    -snakes : SnakeManager
+    -chunks : ChunkManager
+    -control : GameControl
+    +step()
+
+}
+
+class Room
+
+@enduml
